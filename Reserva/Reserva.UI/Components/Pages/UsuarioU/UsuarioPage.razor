@@ -1,0 +1,98 @@
+﻿@page "/usuariopage"
+
+@inject HttpClient Http
+
+
+
+
+
+<h3>Listagem de Usuario</h3>
+
+<MudButton Href="/criarusuario" Variant="Variant.Filled" Color="Color.Primary">Criar Usuario</MudButton>
+
+@if (_loading)
+{
+    <!-- Exibe uma barra de carregamento enquanto a API responde -->
+    <MudProgressLinear Color="Color.Info" Indeterminate="true" Class="my-7" />
+}
+else if (reservas == null || !reservas.Any())
+{
+    <MudAlert Severity="Severity.Info">Nenhuma reserva encontrada para os critérios selecionados.</MudAlert>
+}
+else
+{
+    <!-- O MudGrid organiza os itens de forma responsiva -->
+    
+        <MudTable  Items="@reservas" Hover="true" Breakpoint="Breakpoint.Sm">
+            <HeaderContent>
+               
+                    <MudTh>Id</MudTh>
+                    <MudTh>Nome</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Opçoes</MudTh>
+                
+            </HeaderContent>
+            <RowTemplate>
+                                
+                <MudTd DataLabel="Id">@context.Id</MudTd>
+                <MudTd DataLabel="Usuario">@context.Nome</MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+                <MudTd DataLabel="Ações">
+                <MudIconButton Icon="@Icons.Material.Filled.Update" Variant="Variant.Text" Color="Color.Primary" Href="@($"/alterarusuario/{@context.Id}")" aria-label="Alterar"></MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Text" Color="Color.Error" Href="@($"/deleteusuario/{@context.Id}")" aria-label="Deletar"></MudIconButton>
+                </MudTd>
+                              
+            </RowTemplate>
+        </MudTable>
+    
+}
+
+@code {
+    // 1. Garanta que o tipo aqui bate com o que a API devolve (Lista de Usuarios)
+    private List<Usuario> reservas = new();
+    private bool _loading = true;
+    public MensagemAlerta mensagemAlerta { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // O if garante que só rode na inicialização interativa
+        if (firstRender)
+        {
+            await CarregarUsuario();
+        }
+    }
+
+    private async Task CarregarUsuario()
+    {
+        try
+        {
+            _loading = true;
+            // Força o MudBlazor a mostrar o estado visual de "Carregando"
+            await InvokeAsync(StateHasChanged);
+
+            // 2. Chame exatamente o endpoint que você testou no Postman
+            var resposta = await Http.GetFromJsonAsync<List<Usuario>>("api/Usuario");
+
+            if (resposta != null)
+            {
+                reservas = resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Se a API falhar, o Snackbar vai te avisar na tela o motivo real
+            Snackbar.Add($"Erro na API: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+            // Força o MudBlazor a sumir com o "Carregando" e desenhar as linhas da tabela
+            await InvokeAsync(StateHasChanged);
+        }
+
+
+    }
+
+
+
+} 

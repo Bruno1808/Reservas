@@ -1,0 +1,87 @@
+﻿@page "/reservaspage"
+
+@inject HttpClient Http
+
+@inject NavigationManager Navigation
+
+
+
+<h3>Listagem de Usuario</h3>
+
+<MudButton Href="/criarreserva" Variant="Variant.Filled" Color="Color.Primary">Criar Reserva</MudButton>
+
+@if (_loading)
+{
+    <!-- Exibe uma barra de carregamento enquanto a API responde -->
+    <MudProgressLinear Color="Color.Info" Indeterminate="true" Class="my-7" />
+}
+else if (reservas == null || !reservas.Any())
+{
+    <MudAlert Severity="Severity.Info">Nenhuma reserva encontrada para os critérios selecionados.</MudAlert>
+}
+else
+{
+    <!-- O MudGrid organiza os itens de forma responsiva -->
+
+    <MudTable Items="@reservas" Hover="true" Breakpoint="Breakpoint.Sm">
+        <HeaderContent>
+
+            <MudTh>Id</MudTh>
+            <MudTh>Laboratorio</MudTh>
+            <MudTh>Usuario</MudTh>
+            <MudTh>Data Inicio</MudTh>
+            <MudTh>Data Final</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Opçoes</MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
+
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Laboratorio">@context.Laboratorios.Nome</MudTd>
+            <MudTd DataLabel="Usuario">@context.usuario.Nome</MudTd>
+            <MudTd DataLabel="Data Inicio">@context.DataInicio</MudTd>
+            <MudTd DataLabel="Data Final">@context.DataFinal</MudTd>
+            <MudTd DataLabel="Status">@context.Status</MudTd>
+            <MudTd DataLabel="Ações">
+                <MudIconButton Icon="@Icons.Material.Filled.Update" Variant="Variant.Text" Color="Color.Primary" Href="@($"/alterarreserva/{@context.Id}")" aria-label="Alterar"></MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Text" Color="Color.Error" Href="@($"/deletereserva/{@context.Id}")" aria-label="Deletar"></MudIconButton>
+            </MudTd>
+
+        </RowTemplate>
+    </MudTable>
+
+}
+
+@code {
+    private List<Reservas> reservas = new();
+    private bool _loading = true;
+    public MensagemAlerta mensagemAlerta { get; set; }
+    // Mudança para o método correto de inicialização
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarReservas();
+    }
+
+    private async Task CarregarReservas()
+    {
+        try
+        {
+            _loading = true;
+            var resposta = await Http.GetFromJsonAsync<List<Reservas>>("api/ReservasLab");
+
+            if (resposta != null)
+            {
+                reservas = resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro na API: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

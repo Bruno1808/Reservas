@@ -1,0 +1,83 @@
+﻿@page "/criarusuario"
+
+@inject HttpClient Http
+
+@inject NavigationManager Navigation
+
+<h3>Criar Usuario</h3>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@formValido" Spacing="4">
+                <MudTextField T="string" Label="Nome Do Usuario" @bind-Value="novoUsuario.Nome" Required="true"
+                              RequiredError="O nome do usuário é obrigatório!" />
+                <MudTextField T="string" Label="Email" @bind-Value="novoUsuario.Email" Required="true"
+                              RequiredError="O Email é obrigatório!" />
+            </MudForm>
+        </MudPaper>
+        <MudButton 
+            Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="CadastrarUsuario"
+                   Class="ml-auto">Cadastrar
+        </MudButton>
+    </MudItem>
+   
+ </MudGrid>
+
+@code {
+    private Usuario novoUsuario = new Usuario() { Ativo = true };
+    private MudForm form;
+    private bool formValido;
+    public MensagemAlerta mensagemAlerta { get; set; }
+    private bool _isProcessing = false;
+   
+    private async Task CadastrarUsuario()
+    {
+        await form.Validate();
+
+        if (!form.IsValid)
+        {
+            Snackbar.Add("Por favor, corrija os erros do formulário.", Severity.Warning);
+            return;
+        }
+        try
+        {
+            _isProcessing = true;
+            await InvokeAsync(StateHasChanged);
+            var resposta = await Http.PostAsJsonAsync("api/Usuario", novoUsuario);
+            // _loading = true;
+            // Força o MudBlazor a mostrar o estado visual de "Carregando"
+            if (resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Usuário cadastrado com sucesso!", Severity.Success);
+                Navigation.NavigateTo("/usuariopage");
+            }
+            else
+            {
+                var erroDetalhado = await resposta.Content.ReadAsStringAsync();
+                Snackbar.Add($"Erro ao salvar: {erroDetalhado}", Severity.Error);
+            }
+            await InvokeAsync(StateHasChanged);
+
+            // 2. Chame exatamente o endpoint que você testou no Postman
+            
+            
+           
+        }
+        catch (Exception ex)
+        {
+            // Se a API falhar, o Snackbar vai te avisar na tela o motivo real
+            Snackbar.Add($"Erro na API: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+          
+                _isProcessing = false;
+                await InvokeAsync(StateHasChanged);
+            
+        }
+    }
+
+}
+

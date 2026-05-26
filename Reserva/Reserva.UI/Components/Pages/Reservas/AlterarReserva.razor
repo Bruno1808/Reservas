@@ -1,0 +1,241 @@
+﻿@page "/alterarreserva/{Id:int}"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<h3>Alterar Reserva</h3>
+
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@formValido" Spacing="4">
+
+                <MudSelect T="int"
+                           Required="true"
+                           @bind-Value="reservaEdicao.LaboratorioId"
+                           Label="Selecione o Laboratório"
+                           Variant="Variant.Outlined"
+                           RequiredError="Selecione um laboratório para continuar!">
+                    @if (listaLaboratorios == null || !listaLaboratorios.Any())
+                    {
+                        <MudSelectItem T="int" Value="0" Disabled="true">Carregando Laboratórios...</MudSelectItem>
+                    }
+                    else
+                    {
+                        @foreach (var lab in listaLaboratorios)
+                        {
+                            <MudSelectItem T="int" Value="@lab.Id">@lab.Nome</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+
+                <MudSelect T="int"
+                           Required="true"
+                           @bind-Value="reservaEdicao.UsuarioId"
+                           Label="Selecione o Usuário"
+                           Variant="Variant.Outlined"
+                           RequiredError="Selecione um Usuário para continuar!">
+                    @if (listaUsuarios == null || !listaUsuarios.Any())
+                    {
+                        <MudSelectItem T="int" Value="0" Disabled="true">Carregando Usuários...</MudSelectItem>
+                    }
+                    else
+                    {
+                        @foreach (var usi in listaUsuarios)
+                        {
+                            <MudSelectItem T="int" Value="@usi.Id">@usi.Nome</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Período da Reserva</MudText>
+                    <MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudStack>
+                                <MudDatePicker Label="Data Inicial"
+                                               Date="DataSelecionadaInicio"
+                                               DateChanged="OnDataChangedInicio"
+                                               Editable="true"
+                                               Color="Color.Primary"
+                                               Variant="Variant.Outlined" />
+
+                                <MudTimePicker Label="Horário Inicial"
+                                               Time="HoraSelecionadaInicio"
+                                               TimeChanged="OnHoraChangedInicio"
+                                               Color="Color.Secondary"
+                                               Variant="Variant.Outlined"
+                                               AmPm="false" />
+                            </MudStack>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudStack>
+                                <MudDatePicker Label="Data Final"
+                                               Date="DataSelecionadaFinal"
+                                               DateChanged="OnDataChangedFinal"
+                                               Editable="true"
+                                               Color="Color.Primary"
+                                               Variant="Variant.Outlined" />
+
+                                <MudTimePicker Label="Horário Final"
+                                               Time="HoraSelecionadaFinal"
+                                               TimeChanged="OnHoraChangedFinal"
+                                               Color="Color.Secondary"
+                                               Variant="Variant.Outlined"
+                                               AmPm="false" />
+                            </MudStack>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+
+            </MudForm>
+        </MudPaper>
+
+        <MudStack Row="true" Class="mt-4" Justify="Justify.FlexEnd">
+            <MudButton Variant="Variant.Text" OnClick='() => Navigation.NavigateTo("/reservaspage")'>Cancelar</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="_isProcessing"
+                       OnClick="SalvarAlteracao">
+                @if (_isProcessing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Salvando...</MudText>
+                }
+                else
+                {
+                    <MudText>Salvar Alterações</MudText>
+                }
+            </MudButton>
+        </MudStack>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    // Mudamos o nome para refletir que estamos EDITANDO uma reserva existente
+    private Reservas reservaEdicao = new();
+    private MudForm form;
+    private bool formValido;
+    private bool _isProcessing = false;
+
+    // Listas auxiliares para carregar os componentes select
+    private List<Usuario> listaUsuarios = new();
+    private List<Laboratorios> listaLaboratorios = new(); // Adicionado!
+
+    // Variáveis de controle de Data e Hora
+    private DateTime DataHoraCombinadaInicio { get; set; }
+    private DateTime? DataSelecionadaInicio { get; set; } = null;
+    private TimeSpan? HoraSelecionadaInicio { get; set; } = null;
+
+    private DateTime DataHoraCombinadaFinal { get; set; }
+    private DateTime? DataSelecionadaFinal { get; set; } = null;
+    private TimeSpan? HoraSelecionadaFinal { get; set; } = null;
+
+    // Alterado para OnInitializedAsync para buscar os dados antes da página desenhar na tela
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarDadosIniciais();
+    }
+
+    private async Task CarregarDadosIniciais()
+    {
+        try
+        {
+            // 1. Carrega as listas dos Dropdowns de uma vez só
+            var tarefas = new List<Task>
+            {
+                Http.GetFromJsonAsync<List<Usuario>>("api/Usuario").ContinueWith(t => { if(t.IsCompletedSuccessfully) listaUsuarios = t.Result; }),
+                // Ajuste a rota abaixo caso o endpoint de listar laboratórios mude no seu backend
+                Http.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorio").ContinueWith(t => { if(t.IsCompletedSuccessfully) listaLaboratorios = t.Result; })
+            };
+            await Task.WhenAll(tarefas);
+
+            // 2. Carrega a reserva específica pelo ID (Retorna um objeto único e não uma List)
+            var reservaBanco = await Http.GetFromJsonAsync<Reservas>($"api/ReservasLab/{Id}");
+
+            if (reservaBanco != null)
+            {
+                reservaEdicao = reservaBanco;
+
+                // Alimenta os seletores de Data/Hora com o que veio salvo do banco de dados
+                DataSelecionadaInicio = reservaEdicao.DataInicio.Value.Date;
+                HoraSelecionadaInicio = reservaEdicao.DataInicio.Value.TimeOfDay;
+                DataSelecionadaFinal = reservaEdicao.DataFinal.Value.Date;
+                HoraSelecionadaFinal = reservaEdicao.DataFinal.Value.TimeOfDay;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar dados da página: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void OnDataChangedInicio(DateTime? novaData)
+    {
+        if (novaData.HasValue)
+            DataHoraCombinadaInicio = novaData.Value.Date + (HoraSelecionadaInicio ?? TimeSpan.Zero);
+    }
+
+    private void OnHoraChangedInicio(TimeSpan? novaHora)
+    {
+        if (novaHora.HasValue)
+            DataHoraCombinadaInicio = (DataSelecionadaInicio ?? DateTime.Today) + novaHora.Value;
+    }
+
+    private void OnDataChangedFinal(DateTime? novaData)
+    {
+        if (novaData.HasValue)
+            DataHoraCombinadaFinal = novaData.Value.Date + (HoraSelecionadaFinal ?? TimeSpan.Zero);
+    }
+
+    private void OnHoraChangedFinal(TimeSpan? novaHora)
+    {
+        if (novaHora.HasValue)
+            DataHoraCombinadaFinal = (DataSelecionadaFinal ?? DateTime.Today) + novaHora.Value;
+    }
+
+    private async Task SalvarAlteracao()
+    {
+        await form.Validate();
+
+        if (!formValido)
+        {
+            Snackbar.Add("Por favor, preencha os campos obrigatórios.", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            _isProcessing = true;
+
+            // Transfere os valores combinados dos seletores de volta para o objeto final
+            reservaEdicao.DataInicio = DataHoraCombinadaInicio;
+            reservaEdicao.DataFinal = DataHoraCombinadaFinal;
+
+            // ✅ CORRIGIDO: Método PUT para atualizar registros existentes na API
+            var resposta = await Http.PutAsJsonAsync($"api/ReservasLab", reservaEdicao);
+
+            if (resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Reserva atualizada com sucesso!", Severity.Success);
+                Navigation.NavigateTo("/reservaspage");
+            }
+            else
+            {
+                var erroDetalhado = await resposta.Content.ReadAsStringAsync();
+                Snackbar.Add($"Erro ao atualizar: {erroDetalhado}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro na API: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+}

@@ -1,0 +1,145 @@
+﻿@page "/alterarlaboratorio/{Id:int}"
+
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+
+<h3>DeleteUsuario</h3>
+@if (_carregando)
+{
+    <!-- Enquanto a API não responde, exibe uma barra de carregamento para evitar erros de tela vazia -->
+    <MudProgressLinear Color="Color.Info" Indeterminate="true" Class="my-7" />
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudPaper Class="pa-4">
+                <MudForm @ref="form" Spacing="4">
+                    <MudTextField Disabled="true" T="int" Label="Id" @bind-Value="novoLaboratorio.Id" Required="true" />
+                    <MudTextField T="string" Label="Nome Do Usuario" @bind-Value="novoLaboratorio.Nome" Required="true" />
+
+                    <MudTextField T="int" Label="Capacidade" @bind-Value="novoLaboratorio.Capacidade" Required="true" />
+
+                </MudForm>
+            </MudPaper>
+            <br />
+            <MudItem xs="12" sm="7">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="Alterar"
+                           Class="ml-auto">
+                    Alterar
+                </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary"
+                           Href="/laboratoriopage"
+                           Class="ml-auto">
+                    Voltar
+
+                </MudButton>
+            </MudItem>
+        </MudItem>
+
+    </MudGrid>
+}
+
+@code {
+    private MudForm form;
+    private int? idBusca;
+    public MensagemAlerta mensagemAlerta { get; set; }
+    private bool _carregando = false;
+    private Laboratorios novoLaboratorio = new Laboratorios();
+
+    [Parameter]
+    public int Id { get; set; }
+
+    // Usamos o OnAfterRenderAsync para buscar os dados de forma assíncrona assim que a página renderizar
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await BuscarLaboratorio();
+        }
+    }
+
+    private async Task BuscarLaboratorio()
+    {
+        try
+        {
+            _carregando = true;
+            await InvokeAsync(StateHasChanged);
+
+            // Faz o GET na API buscando as informações do ID enviado
+            var resposta = await Http.GetAsync($"api/Laboratorio/{Id}");
+
+            if (resposta.IsSuccessStatusCode)
+            {
+                // Converte o JSON da API de volta para o objeto Usuario.
+                // O Blazor vai preencher o MudForm na mesma hora!
+                novoLaboratorio = await resposta.Content.ReadFromJsonAsync<Laboratorios>();
+            }
+            else if (resposta.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("O Laboratorio não foi encontrado no sistema.", Severity.Warning);
+                Navigation.NavigateTo("/laboratoriopage");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar dados: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+
+
+    private async void Alterar(MouseEventArgs args)
+    {
+        if (!form.IsValid)
+        {
+            Snackbar.Add("Por favor, corrija os erros do formulário.", Severity.Warning);
+            return;
+        }
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+            var resposta = await Http.PutAsJsonAsync("api/Laboratorio", novoLaboratorio);
+            // _loading = true;
+            // Força o MudBlazor a mostrar o estado visual de "Carregando"
+            if (resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("laboratorio alterado com sucesso!", Severity.Success);
+                Navigation.NavigateTo("/laboratoriopage");
+            }
+            else
+            {
+                var erroDetalhado = await resposta.Content.ReadAsStringAsync();
+                Snackbar.Add($"Erro ao alterar: {erroDetalhado}", Severity.Error);
+            }
+            await InvokeAsync(StateHasChanged);
+
+            // 2. Chame exatamente o endpoint que você testou no Postman
+
+            
+            
+        }
+        catch (Exception ex)
+        {
+            // Se a API falhar, o Snackbar vai te avisar na tela o motivo real
+            Snackbar.Add($"Erro na API: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+
+           
+            await InvokeAsync(StateHasChanged);
+
+        }
+    }
+}

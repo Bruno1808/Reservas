@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Novo Perfil",
+    "Projects": [
+      {
+        "Path": "Reserva.Api\\Reserva.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Reserva.UI\\Reserva.UI.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

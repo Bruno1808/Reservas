@@ -1,0 +1,116 @@
+﻿@page "/deleteusuario/{Id:int}"
+
+
+@inject HttpClient Http
+
+@inject NavigationManager Navigation
+
+
+<h3>DeleteUsuario</h3>
+@if (_carregando)
+{
+<!-- Enquanto a API não responde, exibe uma barra de carregamento para evitar erros de tela vazia -->
+<MudProgressLinear Color="Color.Info" Indeterminate="true" Class="my-7" />
+}
+else
+{
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form"  Spacing="4">
+                    <MudTextField Disabled= "true" T="int" Label="Id" @bind-Value="novoUsuario.Id" Required="true" />
+                <MudTextField Disabled="true"  T="string" Label="Nome Do Usuario" @bind-Value="novoUsuario.Nome" Required="true" />
+                             
+                <MudTextField Disabled="true" T="string" Label="Email" @bind-Value="novoUsuario.Email" Required="true" />
+                             
+            </MudForm>
+        </MudPaper>
+        <br />
+            <MudItem xs="12" sm="7">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Excluir"
+                   Class="ml-auto">
+           EXCLUIR
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Secondary"
+                   Href="/usuariopage"
+                   Class="ml-auto">Voltar
+           
+        </MudButton>
+        </MudItem>
+    </MudItem>
+
+</MudGrid>
+}
+
+@code {
+    private MudForm form;
+    private int? idBusca;
+    private bool _carregando = false;
+    public MensagemAlerta mensagemAlerta { get; set; }
+    private Usuario novoUsuario = new Usuario();
+
+    [Parameter]
+    public int Id { get; set; }
+
+    // Usamos o OnAfterRenderAsync para buscar os dados de forma assíncrona assim que a página renderizar
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await BuscarUsuario();
+        }
+    }
+
+    private async Task BuscarUsuario()
+    {
+        try
+        {
+            _carregando = true;
+            await InvokeAsync(StateHasChanged);
+
+            // Faz o GET na API buscando as informações do ID enviado
+            var resposta = await Http.GetAsync($"api/Usuario/{Id}");
+
+            if (resposta.IsSuccessStatusCode)
+            {
+                // Converte o JSON da API de volta para o objeto Usuario.
+                // O Blazor vai preencher o MudForm na mesma hora!
+                novoUsuario = await resposta.Content.ReadFromJsonAsync<Usuario>();
+            }
+            else if (resposta.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("O usuário não foi encontrado no sistema.", Severity.Warning);
+                Navigation.NavigateTo("/usuariopage");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar dados: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+
+
+    private async void Excluir(MouseEventArgs args)
+    {
+        try
+        {
+            var resposta = await Http.DeleteAsync($"api/Usuario/{Id}");
+            if (resposta != null)
+               Navigation.NavigateTo("/usuariopage");
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao excluir o usuario: {ex.Message}", Severity.Error);
+        }
+    }
+}

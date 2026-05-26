@@ -1,0 +1,155 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+    </MudAppBar>
+    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent Class="pt-16 pa-4">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private bool _drawerOpen = true;
+    private bool _isDarkMode = false;
+    private MudTheme? _theme = null;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _theme = new()
+        {
+            PaletteLight = _lightPalette,
+            PaletteDark = _darkPalette,
+            LayoutProperties = new LayoutProperties()
+        };
+    }
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private void DarkModeToggle()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+
+    private readonly PaletteLight _lightPalette = new()
+    {
+        OverlayLight = "rgba(255,255,255,0.4980392156862745)",
+        TableHover = "rgba(0,0,0,0.0392156862745098)",
+        OverlayDark = "rgba(33,33,33,0.4980392156862745)",
+        GrayDarker = "#616161",
+        GrayDark = "#757575",
+        GrayLighter = "#E0E0E0",
+        GrayLight = "#BDBDBD",
+        GrayDefault = "#9E9E9E",
+        RippleOpacitySecondary = 0.2,
+        RippleOpacity = 0.1,
+        HoverOpacity = 0.06,
+        TextSecondary = "#666666",
+        SecondaryDarken = "#929fc5ff",
+        Surface = "rgba(255,255,255,1)",
+        Background = "rgba(255,255,255,1)",
+        BackgroundGray = "rgba(245,245,245,1)",
+        ErrorContrastText = "rgba(255,255,255,1)",
+        LinesInputs = "rgba(189,189,189,1)",
+        ActionDisabled = "rgba(0,0,0,0.25882352941176473)",
+        TextDisabled = "rgba(0,0,0,0.3764705882352941)",
+        TableStriped = "rgba(0,0,0,0.0196078431372549)",
+        LinesDefault = "rgba(0,0,0,0.11764705882352941)",
+        ActionDisabledBackground = "rgba(0,0,0,0.11764705882352941)",
+        TableLines = "rgba(224,224,224,1)",
+        Divider = "rgba(224,224,224,1)",
+        DividerLight = "rgba(0,0,0,0.8)",
+        Error = "rgba(244,67,54,1)",
+        TertiaryLighten = "rgba(73, 80, 87, 0.5)",
+        Tertiary = "rgba(73, 80, 87, 0.5)",
+        TertiaryDarken = "rgba(73, 80, 87, 0.5)",
+        ActionDefault = "rgba(0,0,0,0.5372549019607843)",
+        DarkLighten = "rgb(87,87,87)",
+        ErrorLighten = "rgb(246,96,85)",
+        ErrorDarken = "rgb(242,28,13)",
+        DarkDarken = "rgb(46,46,46)",
+        PrimaryContrastText = "#d6defa",
+        TertiaryContrastText = "#f8f9fa",
+        DarkContrastText = "#ced4da",
+        Secondary = "#edf1fdff",
+        DrawerIcon = "#fff",
+        DrawerText = "#000000ff",
+        White = "#fff",
+        WarningDarken = "#624c27",
+        Warning = "#f4bd61",
+        TextPrimary = "#15245c",
+        PrimaryDarken = "#15245c",
+        SuccessDarken = "#134833",
+        InfoDarken = "#103148",
+        Primary = "#3459e6",
+        AppbarText = "#3459e6",
+        SecondaryLighten = "#edf1fdb7",
+        DrawerBackground = "#d2effda2",
+        WarningLighten = "#fdf2df",
+        WarningContrastText = "#fdf2df",
+        Success = "#2fb380",
+        Info = "#287bb5",
+        Dark = "#212529",
+        PrimaryLighten = "#d6defa",
+        AppbarBackground = "#d6defaff",
+        SuccessContrastText = "#d5f0e6",
+        SuccessLighten = "#d5f0e6",
+        InfoLighten = "#d4e5f0",
+        InfoContrastText = "#d4e5f0",
+        SecondaryContrastText = "#000000ff",
+        Black = "#000",
+    };
+
+    private readonly PaletteDark _darkPalette = new()
+    {
+        Primary = "#7e6fff",
+        Surface = "#1e1e2d",
+        Background = "#1a1a27",
+        BackgroundGray = "#151521",
+        AppbarText = "#92929f",
+        AppbarBackground = "rgba(26,26,39,0.8)",
+        DrawerBackground = "#1a1a27",
+        ActionDefault = "#74718e",
+        ActionDisabled = "#9999994d",
+        ActionDisabledBackground = "#605f6d4d",
+        TextPrimary = "#b2b0bf",
+        TextSecondary = "#92929f",
+        TextDisabled = "#ffffff33",
+        DrawerIcon = "#92929f",
+        DrawerText = "#92929f",
+        GrayLight = "#2a2833",
+        GrayLighter = "#1e1e2d",
+        Info = "#4a86ff",
+        Success = "#3dcb6c",
+        Warning = "#ffb545",
+        Error = "#ff3f5f",
+        LinesDefault = "#33323e",
+        TableLines = "#33323e",
+        Divider = "#292838",
+        OverlayLight = "#1e1e2d80",
+    };
+
+    public string DarkLightModeButtonIcon => _isDarkMode switch
+    {
+        true => Icons.Material.Rounded.AutoMode,
+        false => Icons.Material.Outlined.DarkMode,
+    };
+}
+
+

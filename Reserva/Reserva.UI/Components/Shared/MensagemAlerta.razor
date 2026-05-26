@@ -1,0 +1,18 @@
+﻿@inject ISnackbar Snackbar
+
+@code {
+    // Parâmetros que o componente pode receber
+    [Parameter] public string Mensagem { get; set; } = "Operação realizada!";
+    [Parameter] public Severity Tipo { get; set; } = Severity.Info;
+
+    // Método que pode ser chamado externamente
+    public void Exibir()
+    {
+        Snackbar.Add(Mensagem, Tipo);
+    }
+
+    // Atalhos para facilitar o uso
+    public void Sucesso(string msg) => Snackbar.Add(msg, Severity.Success);
+    public void Erro(string msg) => Snackbar.Add(msg, Severity.Error);
+    public void Aviso(string msg) => Snackbar.Add(msg, Severity.Warning);
+}
