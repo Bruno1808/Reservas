@@ -11,7 +11,7 @@ namespace Reserva.Domain.Domain
     {
 
       public Reservas() { }
-        public Reservas(int id, DateTime? dataInicio, DateTime? dataFinal, Status status, TipoAlocacao tipoAlocacao, int laboratorioId, int usuarioId, Usuario usuario)
+        public Reservas(int id, DateTime? dataInicio, DateTime? dataFinal, Status status, TipoAlocacao tipoAlocacao, int laboratorioId, int usuarioId)
         {
             Id = id;
             DataInicio = dataInicio;
@@ -20,7 +20,7 @@ namespace Reserva.Domain.Domain
             TipoAlocacao = tipoAlocacao;
             LaboratorioId = laboratorioId;
             UsuarioId = usuarioId;
-            this.usuario = usuario;
+           
         }
 
         [Key]

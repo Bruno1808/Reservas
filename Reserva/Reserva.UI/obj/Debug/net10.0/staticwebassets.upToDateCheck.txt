@@ -2,7 +2,7 @@ wwwroot\favicon.ico
 Components\Layout\ReconnectModal.razor.js
 C:\Users\bruno\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.8\build\..\_framework\blazor.web.js
 C:\Users\bruno\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.8\build\..\_framework\blazor.server.js
+C:\Users\bruno\source\repos\Reserva\Reserva.UI\wwwroot\favicon.ico
+C:\Users\bruno\source\repos\Reserva\Reserva.UI\Components\Layout\ReconnectModal.razor.js
 C:\Users\bruno\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.8\_framework\blazor.server.js
 C:\Users\bruno\.nuget\packages\microsoft.aspnetcore.app.internal.assets\10.0.8\_framework\blazor.web.js
-C:\Users\bruno\source\repos\Reserva\Reserva.UI\Components\Layout\ReconnectModal.razor.js
-C:\Users\bruno\source\repos\Reserva\Reserva.UI\wwwroot\favicon.ico

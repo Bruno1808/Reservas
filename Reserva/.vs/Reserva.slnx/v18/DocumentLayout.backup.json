@@ -1,12 +1,71 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\bruno\\source\\repos\\Reserva\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9BF8BEEB-E6AC-49DC-8121-FED66DEE3DBF}|Reserva.UI\\Reserva.UI.csproj|c:\\users\\bruno\\source\\repos\\reserva\\reserva.ui\\components\\pages\\dashboard\\dashboardpage.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{9BF8BEEB-E6AC-49DC-8121-FED66DEE3DBF}|Reserva.UI\\Reserva.UI.csproj|solutionrelative:reserva.ui\\components\\pages\\dashboard\\dashboardpage.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6C0C311-1BA0-3CF3-4A1C-5321ADB4FE50}|Reserva.Domain\\Reserva.Domain.csproj|c:\\users\\bruno\\source\\repos\\reserva\\reserva.domain\\interfaces\\idashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6C0C311-1BA0-3CF3-4A1C-5321ADB4FE50}|Reserva.Domain\\Reserva.Domain.csproj|solutionrelative:reserva.domain\\interfaces\\idashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{430196FB-B856-4116-988E-7B6D45371B26}|Reserva.Api\\Reserva.Api.csproj|c:\\users\\bruno\\source\\repos\\reserva\\reserva.api\\repositorio\\dashboardrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{430196FB-B856-4116-988E-7B6D45371B26}|Reserva.Api\\Reserva.Api.csproj|solutionrelative:reserva.api\\repositorio\\dashboardrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IDashboard.cs",
+              "DocumentMoniker": "C:\\Users\\bruno\\source\\repos\\Reserva\\Reserva.Domain\\Interfaces\\IDashboard.cs",
+              "RelativeDocumentMoniker": "Reserva.Domain\\Interfaces\\IDashboard.cs",
+              "ToolTip": "C:\\Users\\bruno\\source\\repos\\Reserva\\Reserva.Domain\\Interfaces\\IDashboard.cs",
+              "RelativeToolTip": "Reserva.Domain\\Interfaces\\IDashboard.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T23:51:30.939Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DashboardRepository.cs",
+              "DocumentMoniker": "C:\\Users\\bruno\\source\\repos\\Reserva\\Reserva.Api\\Repositorio\\DashboardRepository.cs",
+              "RelativeDocumentMoniker": "Reserva.Api\\Repositorio\\DashboardRepository.cs",
+              "ToolTip": "C:\\Users\\bruno\\source\\repos\\Reserva\\Reserva.Api\\Repositorio\\DashboardRepository.cs",
+              "RelativeToolTip": "Reserva.Api\\Repositorio\\DashboardRepository.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAowDsAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T23:50:52.847Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DashBoardPage.razor",
+              "DocumentMoniker": "C:\\Users\\bruno\\source\\repos\\Reserva\\Reserva.UI\\Components\\Pages\\DashBoard\\DashBoardPage.razor",
+              "RelativeDocumentMoniker": "Reserva.UI\\Components\\Pages\\DashBoard\\DashBoardPage.razor",
+              "ToolTip": "C:\\Users\\bruno\\source\\repos\\Reserva\\Reserva.UI\\Components\\Pages\\DashBoard\\DashBoardPage.razor*",
+              "RelativeToolTip": "Reserva.UI\\Components\\Pages\\DashBoard\\DashBoardPage.razor*",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAACkAAABrAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-05-26T23:23:23.123Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

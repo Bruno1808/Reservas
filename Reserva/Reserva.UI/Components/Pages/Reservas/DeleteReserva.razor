@@ -1,117 +1,214 @@
-﻿@page "/deletereserva"
-
+﻿@page "/deletereserva/{Id:int}"
 @inject HttpClient Http
-
 @inject NavigationManager Navigation
+@inject ISnackbar Snackbar
 
+<h3>Alterar Reserva</h3>
+<MudPopover Style="width: 500px;"  Open="@_open" Class="pa-4" Fixed="true" RelativeWidth="@_dropdownWidth" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.CenterCenter">
+                    <MudText Class="mb-4">Essa ação não pode ser desfeita. Deseja continuar?</MudText>
 
+                    <MudStack Row="true" Justify="Justify.SpaceBetween">
 
-@if (_carregando)
-{
-    <!-- Enquanto a API não responde, exibe uma barra de carregamento para evitar erros de tela vazia -->
-    <MudProgressLinear Color="Color.Info" Indeterminate="true" Class="my-7" />
-}
-else
-{
-    <MudGrid>
-        <MudItem xs="12" sm="7">
-            <MudPaper Class="pa-4">
-                <MudForm @ref="form" Spacing="4">
-                    <MudTextField Disabled="true" T="int" Label="Id" @bind-Value="novoLaboratorio.Id" Required="true" />
-                    <MudTextField Disabled="true" T="string" Label="Nome Do Laboratorio" @bind-Value="novoLaboratorio.Nome" Required="true" />
-                    <MudTextField Disabled="true" T="int" Label="Capacidade" @bind-Value="novoLaboratorio.Capacidade" Required="true" />
+                        <MudButton OnClick="@ToggleOpen"
+                                   Color="Color.Default"
+                                   Variant="Variant.Text">
+                            Cancelar
+                        </MudButton>
 
-                </MudForm>
-            </MudPaper>
-            <br />
-            <MudItem xs="12" sm="7">
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Error"
-                           OnClick="Excluir"
-                           Class="ml-auto">
-                    EXCLUIR
+                        <MudButton OnClick="Excluir"
+                                   Color="Color.Error"
+                                   Variant="Variant.Filled">
+                            Excluir
+                        </MudButton>
+
+                    </MudStack>
+                </MudPopover>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@formValido" Spacing="4">
+
+                <MudSelect T="int"
+                           Required="true"
+                           @bind-Value="reservaEdicao.LaboratorioId"
+                           Label="Selecione o Laboratório"
+                           Variant="Variant.Outlined"
+                           RequiredError="Selecione um laboratório para continuar!">
+                    @if (listaLaboratorios == null || !listaLaboratorios.Any())
+                    {
+                        <MudSelectItem T="int" Value="0" Disabled="true">Carregando Laboratórios...</MudSelectItem>
+                    }
+                    else
+                    {
+                        @foreach (var lab in listaLaboratorios)
+                        {
+                            <MudSelectItem T="int" Value="@lab.Id">@lab.Nome</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+
+                <MudSelect T="int"
+                           Required="true"
+                           @bind-Value="reservaEdicao.UsuarioId"
+                           Label="Selecione o Usuário"
+                           Variant="Variant.Outlined"
+                           RequiredError="Selecione um Usuário para continuar!">
+                    @if (listaUsuarios == null || !listaUsuarios.Any())
+                    {
+                        <MudSelectItem T="int" Value="0" Disabled="true">Carregando Usuários...</MudSelectItem>
+                    }
+                    else
+                    {
+                        @foreach (var usi in listaUsuarios)
+                        {
+                            <MudSelectItem T="int" Value="@usi.Id">@usi.Nome</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Período da Reserva</MudText>
+                    <MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudStack>
+                                <MudDatePicker Label="Data Inicial"
+                                               Date="DataSelecionadaInicio"
+                                               
+                                               Editable="true"
+                                               Color="Color.Primary"
+                                               Variant="Variant.Outlined" />
+
+                                <MudTimePicker Label="Horário Inicial"
+                                               Time="HoraSelecionadaInicio"
+                                               
+                                               Color="Color.Secondary"
+                                               Variant="Variant.Outlined"
+                                               AmPm="false" />
+                            </MudStack>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudStack>
+                                <MudDatePicker Label="Data Final"
+                                               Date="DataSelecionadaFinal"
+                                               
+                                               Editable="true"
+                                               Color="Color.Primary"
+                                               Variant="Variant.Outlined" />
+
+                                <MudTimePicker Label="Horário Final"
+                                               Time="HoraSelecionadaFinal"
+                                               
+                                               Color="Color.Secondary"
+                                               Variant="Variant.Outlined"
+                                               AmPm="false" />
+                            </MudStack>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+
+            </MudForm>
+        </MudPaper>
+
+        <MudStack Row="true" Class="mt-4" Justify="Justify.FlexEnd">
+            <MudButton Variant="Variant.Text" OnClick='() => Navigation.NavigateTo("/reservaspage")'>Voltar</MudButton>
+            <div style="width: 250px;">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth OnClick="@ToggleOpen">
+                    @if (_isProcessing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">Salvando...</MudText>
+                    }
+                    else
+                    {
+                        <MudText>Excluir</MudText>
+                    }
+               
                 </MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           Href="/laboratoriopage"
-                           Class="ml-auto">
-                    Voltar
-
-                </MudButton>
-            </MudItem>
-        </MudItem>
-
-    </MudGrid>
-}
+                
+            </div>
+                
+        </MudStack>
+    </MudItem>
+</MudGrid>
 
 @code {
+    [Parameter] public int Id { get; set; }
+
+    // Mudamos o nome para refletir que estamos EDITANDO uma reserva existente
+    private Reservas reservaEdicao = new();
     private MudForm form;
-    private int? idBusca;
-    private bool _carregando = false;
-    public MensagemAlerta mensagemAlerta { get; set; }
+    private bool formValido;
+    private bool _isProcessing = false;
 
-    private Laboratorios novoLaboratorio = new Laboratorios();
+    // Listas auxiliares para carregar os componentes select
+    private List<Usuario> listaUsuarios = new();
+    private List<Laboratorios> listaLaboratorios = new(); // Adicionado!
 
-    [Parameter]
-    public int Id { get; set; }
+    // Variáveis de controle de Data e Hora
+    private DateTime DataHoraCombinadaInicio { get; set; }
+    private DateTime? DataSelecionadaInicio { get; set; } = null;
+    private TimeSpan? HoraSelecionadaInicio { get; set; } = null;
 
-    // Usamos o OnAfterRenderAsync para buscar os dados de forma assíncrona assim que a página renderizar
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private DateTime DataHoraCombinadaFinal { get; set; }
+    private DateTime? DataSelecionadaFinal { get; set; } = null;
+    private TimeSpan? HoraSelecionadaFinal { get; set; } = null;
+
+    // Alterado para OnInitializedAsync para buscar os dados antes da página desenhar na tela
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            await BuscarLaboratorio();
-        }
+        await CarregarDadosIniciais();
     }
 
-    private async Task BuscarLaboratorio()
+    private async Task CarregarDadosIniciais()
     {
         try
         {
-            _carregando = true;
-            await InvokeAsync(StateHasChanged);
-
-            // Faz o GET na API buscando as informações do ID enviado
-            var resposta = await Http.GetAsync($"api/Laboratorio/{Id}");
-
-            if (resposta.IsSuccessStatusCode)
+            // 1. Carrega as listas dos Dropdowns de uma vez só
+            var tarefas = new List<Task>
             {
-                // Converte o JSON da API de volta para o objeto Usuario.
-                // O Blazor vai preencher o MudForm na mesma hora!
-                novoLaboratorio = await resposta.Content.ReadFromJsonAsync<Laboratorios>();
-            }
-            else if (resposta.StatusCode == System.Net.HttpStatusCode.NotFound)
+                Http.GetFromJsonAsync<List<Usuario>>("api/Usuario").ContinueWith(t => { if(t.IsCompletedSuccessfully) listaUsuarios = t.Result; }),
+                // Ajuste a rota abaixo caso o endpoint de listar laboratórios mude no seu backend
+                Http.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorio").ContinueWith(t => { if(t.IsCompletedSuccessfully) listaLaboratorios = t.Result; })
+            };
+            await Task.WhenAll(tarefas);
+
+            // 2. Carrega a reserva específica pelo ID (Retorna um objeto único e não uma List)
+            var reservaBanco = await Http.GetFromJsonAsync<Reservas>($"api/ReservasLab/{Id}");
+
+            if (reservaBanco != null)
             {
-                Snackbar.Add("O laboratorio não foi encontrado no sistema.", Severity.Warning);
-                Navigation.NavigateTo("/laboratoriopage");
+                reservaEdicao = reservaBanco;
+
+                // Alimenta os seletores de Data/Hora com o que veio salvo do banco de dados
+                DataSelecionadaInicio = reservaEdicao.DataInicio.Value.Date;
+                HoraSelecionadaInicio = reservaEdicao.DataInicio.Value.TimeOfDay;
+                DataSelecionadaFinal = reservaEdicao.DataFinal.Value.Date;
+                HoraSelecionadaFinal = reservaEdicao.DataFinal.Value.TimeOfDay;
             }
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Erro ao carregar dados: {ex.Message}", Severity.Error);
-        }
-        finally
-        {
-            _carregando = false;
-            await InvokeAsync(StateHasChanged);
+            Snackbar.Add($"Erro ao carregar dados da página: {ex.Message}", Severity.Error);
         }
     }
-
-
+    private bool _open;
+    private DropdownWidth _dropdownWidth = DropdownWidth.Ignore;
+    private void ToggleOpen() => _open = !_open;
 
     private async void Excluir(MouseEventArgs args)
     {
         try
         {
-            var resposta = await Http.DeleteAsync($"api/Laboratorio/{Id}");
+            var resposta = await Http.DeleteAsync($"api/ReservasLab/{Id}");
             if (resposta != null)
-                Snackbar.Add($"Laboratorio excluido com sucesso", Severity.Success);
-            Navigation.NavigateTo("/laboratoriopage");
+                Snackbar.Add($"Reserva excluida com sucesso", Severity.Success);
+            Navigation.NavigateTo("/reservaspage");
 
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Erro ao excluir o Laboratorio: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Erro ao excluir a resserava: {ex.Message}", Severity.Error);
         }
     }
 }

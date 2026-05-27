@@ -1,0 +1,140 @@
+﻿@page "/dashboardpage"
+@using Reserva.Domain.DTO
+
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h4" Class="mb-6 font-weight-bold">Painel de Controle (Dashboard)</MudText>
+
+@if (_carregando)
+{
+    <MudStack Row="true" Justify="Justify.Center" Class="my-12">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        <MudText Typo="Typo.h6" Class="ms-3">Carregando dados estatísticos...</MudText>
+    </MudStack>
+}
+else
+{
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="4">
+            <MudPaper Class="pa-5 d-flex align-center justify-space-between rounded-lg" Elevation="3" Style="background: linear-gradient(90deg, #1E88E5 0%, #1565C0 100%); color: white;">
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="opacity-75">Total de Usuários</MudText>
+                    <MudText Typo="Typo.h3" Class="font-weight-bold">@_dados.QuantidadeUsuarios</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.People" Style="font-size: 3.5rem;" Class="opacity-50" />
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="4">
+            <MudPaper Class="pa-5 d-flex align-center justify-space-between rounded-lg" Elevation="3" Style="background: linear-gradient(90deg, #E65100 0%, #EF6C00 100%); color: white;">
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="opacity-75">Laboratórios Cadastrados</MudText>
+                    <MudText Typo="Typo.h3" Class="font-weight-bold">@_dados.QuantidadeLaboratorios</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.Science" Style="font-size: 3.5rem;" Class="opacity-50" />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-5 rounded-lg d-flex flex-column align-center justify-center" Elevation="2" Style="height: 100%; min-height: 380px;">
+                <MudText Typo="Typo.h6" Class="mb-4 font-weight-bold" Align="Align.Center">Proporção de Reservas</MudText>
+
+                @if (_valoresGrafico != null && _valoresGrafico.Length > 0)
+                {
+                    <MudChart T="double"
+                              ChartType="ChartType.Pie"
+                              InputData="@_valoresGrafico"
+                              InputLabels="@_labelsGrafico"
+                              Width="250px"
+                              Height="250px" />
+                }
+                else
+                {
+                    <MudText Color="Color.Secondary">Sem dados suficientes para o gráfico.</MudText>
+                }
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudTable Items="@_dados.Top10Laboratorios" Dense="true" Hover="true" Bordered="false" Striped="true" Elevation="2" Class="rounded-lg" Style="height: 100%;">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6" Class="font-weight-bold">
+                        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="me-2" />Top 10 Laboratórios
+                    </MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Laboratório</MudTh>
+                    <MudTh Style="text-align: right;">Uso (Qtd)</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Laboratório">@context.Nome</MudTd>
+                    <MudTd DataLabel="Uso (Qtd)" Style="text-align: right;">
+                        <MudChip T="string" Color="Color.Primary" Size="Size.Small" Variant="Variant.Text" Class="font-weight-bold">@context.Total</MudChip>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudTable Items="@_dados.Top10Usuarios" Dense="true" Hover="true" Bordered="false" Striped="true" Elevation="2" Class="rounded-lg" Style="height: 100%;">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6" Class="font-weight-bold">
+                        <MudIcon Icon="@Icons.Material.Filled.WorkspacePremium" Color="Color.Info" Class="me-2" />Top 10 Usuários
+                    </MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Usuário</MudTh>
+                    <MudTh Style="text-align: right;">Reservas</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Usuário">@context.Nome</MudTd>
+                    <MudTd DataLabel="Reservas" Style="text-align: right;">
+                        <MudChip T="string" Color="Color.Info" Size="Size.Small" Variant="Variant.Text" Class="font-weight-bold">@context.Total</MudChip>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    private DashboardDTO _dados = new();
+    private bool _carregando = true;
+
+    // CORREÇÃO: Arrays explícitos para o MudChart mapear sem se perder nos métodos
+    private double[] _valoresGrafico = Array.Empty<double>();
+    private string[] _labelsGrafico = Array.Empty<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _carregando = true;
+            
+            var resposta = await Http.GetFromJsonAsync<DashboardDTO>("api/Dashboard");
+            if (resposta != null)
+            {
+                _dados = resposta;
+
+                // Processa e preenche os arrays estáticos imediatamente após a resposta da API
+                if (_dados.GraficoReservas != null && _dados.GraficoReservas.Any())
+                {
+                    _valoresGrafico = _dados.GraficoReservas.Select(x => (double)x.Quantidade).ToArray();
+                    _labelsGrafico = _dados.GraficoReservas.Select(x => $"{x.Label} ({x.Quantidade})").ToArray();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar o Dashboard: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+            StateHasChanged();
+        }
+    }
+}

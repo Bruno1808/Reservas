@@ -10,6 +10,44 @@
     }
   ],
   "paths": {
+    "/api/Dashboard": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Laboratorio": {
       "get": {
         "tags": [
@@ -692,6 +730,61 @@
   },
   "components": {
     "schemas": {
+      "DadosGraficoReservaDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "quantidade": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "DashboardDTO": {
+        "type": "object",
+        "properties": {
+          "quantidadeLaboratorios": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "quantidadeUsuarios": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "top10Laboratorios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopLaboratorioDto"
+            }
+          },
+          "top10Usuarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopUsuarioDto"
+            }
+          },
+          "graficoReservas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DadosGraficoReservaDto"
+            }
+          }
+        }
+      },
       "Laboratorios": {
         "required": [
           "nome",
@@ -807,6 +900,38 @@
       "TipoAlocacao": {
         "type": "integer"
       },
+      "TopLaboratorioDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "TopUsuarioDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "Usuario": {
         "required": [
           "nome",
@@ -875,6 +1000,9 @@
     }
   },
   "tags": [
+    {
+      "name": "Dashboard"
+    },
     {
       "name": "Laboratorio"
     },
